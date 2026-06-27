@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+ <html lang="zh-CN">
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>3D枪战闯关 - 50关</title>
+ <style>
+ * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+ body { overflow: hidden; background: #1a1a2e; font-family: 'Microsoft YaHei', Arial, sans-serif; touch-action: none; }
+ .menu-screen {
+     position: fixed;
+     top: 0; left: 0;
+     width: 100%; height: 100%;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     z-index: 1000;
+     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+ }
+ .menu-screen h1 {
+     font-size: 42px;
+     color: #e94560;
+     text-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+     margin-bottom: 30px;
+     letter-spacing: 4px;
+     text-align: center;
+ }
+ .menu-btn {
+     width: 200px;
+     padding: 12px 24px;
+     margin: 8px;
+     font-size: 16px;
+     border: 2px solid #e94560;
+     background: transparent;
+     color: #fff;
+     cursor: pointer;
+     border-radius: 8px;
+     transition: all 0.3s;
+ }
+ .menu-btn:hover, .menu-btn:active {
+     background: #e94560;
+     box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+     transform: scale(1.05);
+ }
+ .menu-btn.back {
+     position: absolute;
+     top: 15px;
+     left: 15px;
+     width: auto;
+     padding: 8px 16px;
+     font-size: 14px;
+ }
+ .level-select-container {
+     width: 90%;
+     max-width: 800px;
+ }
+ .page-info {
+     color: #fff;
+     font-size: 18px;
+     margin-bottom: 15px;
+     text-align: center;
+ }
+ .level-grid {
+     display: grid;
+     grid-template-columns: repeat(5, 1fr);
+     gap: 10px;
+     margin-bottom: 15px;
+ }
+ .level-btn {
+     aspect-ratio: 1;
+     border: 2px solid #533483;
+     background: rgba(83, 52, 131, 0.3);
+     color: #fff;
+     font-size: 20px;
+     font-weight: bold;
+     cursor: pointer;
+     border-radius: 10px;
+     transition: all 0.3s;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+ }
+ .level-btn:active:not(.locked) {
+     border-color: #e94560;
+     background: rgba(233, 69, 96, 0.3);
+     transform: scale(0.95);
+ }
+ .level-btn.locked {
+     opacity: 0.4;
+     cursor: not-allowed;
+ }
+ .level-btn.boss {
+     border-color: #ff6b6b;
+     background: rgba(255, 107, 107, 0.2);
+ }
+ .level-btn .boss-label {
+     font-size: 8px;
+     color: #ff6b6b;
+     margin-top: 2px;
+ }
+ .level-btn .star {
+     font-size: 10px;
+     color: #ffd93d;
+     margin-top: 2px;
+ }
+ .page-nav {
+     display: flex;
+     justify-content: center;
+     gap: 8px;
+ }
+ .page-btn {
+     width: 36px;
+     height: 36px;
+     border: 2px solid #533483;
+     background: transparent;
+     color: #fff;
+     cursor: pointer;
+     border-radius: 50%;
+     font-size: 14px;
+     transition: all 0.3s;
+ }
+ .page-btn:active, .page-btn.active {
+     border-color: #e94560;
+     background: #e94560;
+ }
+ .difficulty-select {
+     text-align: center;
+     width: 90%;
+     max-width: 400px;
+ }
+ .difficulty-select h2 {
+     color: #fff;
+     font-size: 28px;
+     margin-bottom: 20px;
+ }
+ .difficulty-select .level-num {
+     color: #e94560;
+     font-size: 42px;
+     margin-bottom: 15px;
+ }
+ .diff-btn {
+     display: block;
+     width: 100%;
+     padding: 16px;
+     margin: 12px auto;
+     font-size: 18px;
+     border: 2px solid;
+     background: transparent;
+     color: #fff;
+     cursor: pointer;
+     border-radius: 10px;
+     transition: all 0.3s;
+ }
+ .diff-btn.easy { border-color: #6bcb77; }
+ .diff-btn.easy:active { background: #6bcb77; box-shadow: 0 0 20px rgba(107, 203, 119, 0.5); }
+ .diff-btn.normal { border-color: #ffd93d; }
+ .diff-btn.normal:active { background: #ffd93d; color: #333; box-shadow: 0 0 20px rgba(255, 217, 61, 0.5); }
+ .diff-btn.hard { border-color: #ff6b6b; }
+ .diff-btn.hard:active { background: #ff6b6b; box-shadow: 0 0 20px rgba(255, 107, 107, 0.5); }
+ .diff-btn .diff-desc {
+     font-size: 12px;
+     opacity: 0.8;
+     margin-top: 5px;
+ }
+ .settings-panel {
+     width: 85%;
+     max-width: 380px;
+     color: #fff;
+ }
+ .settings-panel h2 {
+     text-align: center;
+     margin-bottom: 25px;
+     font-size: 24px;
+ }
+ .setting-item {
+     margin-bottom: 20px;
+ }
+ .setting-item label {
+     display: block;
+     margin-bottom: 8px;
+     font-size: 15px;
+ }
+ .setting-item input[type="range"] {
+     width: 100%;
+ }
+ .setting-item .value {
+     float: right;
+     color: #e94560;
+ }
+ #gameHUD {
+     position: fixed;
+     top: 0; left: 0;
+     width: 100%; height: 100%;
+     pointer-events: none;
+     z-index: 500;
+     display: none;
+ }
+ #crosshair {
+     position: fixed;
+     top: 50%; left: 50%;
+     width: 20px; height: 20px;
+     margin: -10px 0 0 -10px;
+ }
+ #crosshair::before, #crosshair::after {
+     content: '';
+     position: absolute;
+     background: #fff;
+     box-shadow: 0 0 3px #000;
+ }
+ #crosshair::before {
+     width: 2px; height: 20px;
+     left: 9px; top: 0;
+ }
+ #crosshair::after {
+     width: 20px; height: 2px;
+     left: 0; top: 9px;
+ }
+ .hud-top-left {
+     position: absolute;
+     top: 15px; left: 15px;
+     color: #fff;
+     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+ }
+ .hud-top-left div {
+     margin-bottom: 6px;
+     font-size: 16px;
+ }
+ .hud-top-right {
+     position: absolute;
+     top: 15px; right: 15px;
+     pointer-events: auto;
+ }
+ .pause-btn-hud {
+     width: 40px;
+     height: 40px;
+     border: 2px solid #fff;
+     background: rgba(0,0,0,0.5);
+     color: #fff;
+     border-radius: 8px;
+     font-size: 18px;
+     cursor: pointer;
+ }
+ .hud-bottom-right {
+     position: absolute;
+     bottom: 120px; right: 15px;
+     color: #fff;
+     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+     text-align: right;
+ }
+ .hp-bar {
+     width: 150px;
+     height: 16px;
+     background: rgba(0,0,0,0.5);
+     border: 2px solid #fff;
+     border-radius: 8px;
+     overflow: hidden;
+     margin-top: 5px;
+ }
+ .hp-fill {
+     height: 100%;
+     background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+     transition: width 0.3s;
+ }
+ .ammo-display {
+     font-size: 28px;
+     font-weight: bold;
+ }
+ .ammo-display .mag {
+     color: #e94560;
+ }
+ .ammo-display .total {
+     font-size: 18px;
+     color: #aaa;
+ }
+ .hud-center-msg {
+     position: absolute;
+     top: 30%;
+     left: 50%;
+     transform: translateX(-50%);
+     font-size: 36px;
+     color: #fff;
+     text-shadow: 0 0 20px rgba(0,0,0,0.8);
+     text-align: center;
+     opacity: 0;
+     transition: opacity 0.5s;
+     white-space: pre-line;
+ }
+ .hud-center-msg.show {
+     opacity: 1;
+ }
+ #pauseMenu {
+     position: fixed;
+     top: 0; left: 0;
+     width: 100%; height: 100%;
+     background: rgba(0,0,0,0.85);
+     display: none;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     z-index: 800;
+ }
+ #pauseMenu h2 {
+     color: #fff;
+     font-size: 32px;
+     margin-bottom: 25px;
+ }
+ #startTip {
+     position: fixed;
+     top: 0; left: 0;
+     width: 100%; height: 100%;
+     background: rgba(0,0,0,0.7);
+     display: none;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     z-index: 600;
+     pointer-events: auto;
+ }
+ #startTip .tip-title {
+     color: #fff;
+     font-size: 28px;
+     margin-bottom: 20px;
+ }
+ #startTip .tip-controls {
+     color: #aaa;
+     font-size: 14px;
+     margin-bottom: 30px;
+     text-align: center;
+     line-height: 1.8;
+ }
+ .start-btn {
+     padding: 15px 50px;
+     font-size: 22px;
+     border: 3px solid #e94560;
+     background: rgba(233, 69, 96, 0.3);
+     color: #fff;
+     cursor: pointer;
+     border-radius: 12px;
+     animation: pulse 1.5s infinite;
+ }
+ @keyframes pulse {
+     0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(233, 69, 96, 0.5); }
+     50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(233, 69, 96, 0.8); }
+ }
+ #mobileControls {
+     position: fixed;
+     top: 0; left: 0;
+     width: 100%; height: 100%;
+     z-index: 550;
+     display: none;
+     pointer-events: none;
+ }
+ #joystick {
+     position: absolute;
+     bottom: 40px;
+     left: 40px;
+     width: 120px;
+     height: 120px;
+     background: rgba(255,255,255,0.15);
+     border: 3px solid rgba(255,255,255,0.4);
+     border-radius: 50%;
+     pointer-events: auto;
+     touch-action: none;
+ }
+ #joystickKnob {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     width: 50px;
+     height: 50px;
+     background: rgba(255,255,255,0.6);
+     border-radius: 50%;
+     transform: translate(-50%, -50%);
+     transition: transform 0.1s;
+ }
+ #shootBtn {
+     position: absolute;
+     bottom: 60px;
+     right: 30px;
+     width: 80px;
+     height: 80px;
+     background: rgba(233, 69, 96, 0.6);
+     border: 4px solid rgba(233, 69, 96, 0.8);
+     border-radius: 50%;
+     color: #fff;
+     font-size: 14px;
+     font-weight: bold;
+     pointer-events: auto;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     touch-action: none;
+ }
+ #shootBtn:active {
+     background: rgba(233, 69, 96, 0.9);
+     transform: scale(0.95);
+ }
+ #reloadBtn {
+     position: absolute;
+     bottom: 160px;
+     right: 45px;
+     width: 55px;
+     height: 55px;
+     background: rgba(100, 100, 100, 0.6);
+     border: 3px solid rgba(255,255,255,0.5);
+     border-radius: 50%;
+     color: #fff;
+     font-size: 12px;
+     font-weight: bold;
+     pointer-events: auto;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     touch-action: none;
+ }
+ #reloadBtn:active {
+     background: rgba(150, 150, 150, 0.8);
+ }
+ #lookArea {
+     position: absolute;
+     top: 50px;
+     right: 0;
+     width: 50%;
+     height: 60%;
+     pointer-events: auto;
+     touch-action: none;
+ }
+ .hidden { display: none !important; }
+ @media (max-width: 768px) {
+     .menu-screen h1 {
+         font-size: 32px;
+     }
+     
+     .level-btn {
+         font-size: 16px;
+     }
+     
+     .hud-center-msg {
+         font-size: 28px;
+     }
+ }
+ </style>
+ </head>
+ <body>
+ <div id="mainMenu" class="menu-screen">
+     <h1>🎯 枪战闯关</h1>
+     <button class="menu-btn" onclick="showLevelSelect()">开始游戏</button>
+     <button class="menu-btn" onclick="showSettings()">游戏设置</button>
+     <p style="color:#888;margin-top:30px;font-size:12px;text-align:center;line-height:1.8;">
+         电脑：WASD移动 | 鼠标瞄准 | 左键射击<br>
+         手机：左摇杆移动 | 右滑瞄准 | 点击射击
+     </p>
+ </div>
+ <div id="settingsScreen" class="menu-screen hidden">
+     <button class="menu-btn back" onclick="showMainMenu()">← 返回</button>
+     <div class="settings-panel">
+         <h2>⚙️ 游戏设置</h2>
+         <div class="setting-item">
+             <label>鼠标/触控灵敏度 <span class="value" id="sensVal">1.0</span></label>
+             <input type="range" id="sensitivity" min="0.2" max="3" step="0.1" value="1" oninput="updateSensitivity()">
+         </div>
+         <div class="setting-item">
+             <label>游戏音量 <span class="value" id="volVal">50%</span></label>
+             <input type="range" id="volume" min="0" max="100" step="1" value="50" oninput="updateVolume()">
+         </div>
+         <div class="setting-item">
+             <label>画质</label>
+             <select id="quality" style="width:100%;padding:8px;background:#333;color:#fff;border:1px solid #555;border-radius:5px;font-size:14px;">
+                 <option value="low">低画质（流畅）</option>
+                 <option value="medium" selected>中画质</option>
+                 <option value="high">高画质</option>
+             </select>
+         </div>
+     </div>
+ </div>
+ <div id="levelSelect" class="menu-screen hidden">
+     <button class="menu-btn back" onclick="showMainMenu()">← 返回</button>
+     <h1 style="font-size:26px;margin-bottom:15px;">选择关卡</h1>
+     <div class="level-select-container">
+         <div class="page-info">第 <span id="currentPage">1</span> / 5 页</div>
+         <div class="level-grid" id="levelGrid"></div>
+         <div class="page-nav" id="pageNav"></div>
+     </div>
+ </div>
+ <div id="difficultySelect" class="menu-screen hidden">
+     <button class="menu-btn back" onclick="showLevelSelect()">← 返回</button>
+     <div class="difficulty-select">
+         <h2>选择难度</h2>
+         <div class="level-num">第 <span id="selectedLevel">1</span> 关</div>
+         <div id="bossWarning" class="hidden" style="color:#ff6b6b;font-size:16px;margin-bottom:15px;">⚠️ BOSS关卡</div>
+         <button class="diff-btn easy" onclick="startGame(1)">
+             低难度
+             <div class="diff-desc">怪物数量少，适合新手</div>
+         </button>
+         <button class="diff-btn normal" onclick="startGame(2)">
+             中难度
+             <div class="diff-desc">标准难度，适量怪物</div>
+         </button>
+         <button class="diff-btn hard" onclick="startGame(3)">
+             高难度
+             <div class="diff-desc">海量怪物，极限挑战</div>
+         </button>
+     </div>
+ </div>
+ <div id="gameHUD">
+     <div id="crosshair"></div>
+     <div class="hud-top-left">
+         <div>第 <span id="hudLevel">1</span> 关</div>
+         <div>剩余敌人：<span id="hudEnemyCount">0</span></div>
+     </div>
+     <div class="hud-top-right">
+         <button class="pause-btn-hud" onclick="pauseGame()">⏸</button>
+     </div>
+     <div class="hud-bottom-right">
+         <div>生命值</div>
+         <div class="hp-bar"><div class="hp-fill" id="hpFill" style="width:100%"></div></div>
+         <div style="margin-top:10px;">
+             <div class="ammo-display">
+                 <span class="mag" id="hudAmmo">30</span> / <span class="total" id="hudTotalAmmo">100</span>
+             </div>
+         </div>
+     </div>
+     <div class="hud-center-msg" id="centerMsg"></div>
+ </div>
+ <div id="mobileControls">
+     <div id="lookArea"></div>
+     <div id="joystick">
+         <div id="joystickKnob"></div>
+     </div>
+     <button id="reloadBtn">换弹</button>
+     <button id="shootBtn">射击</button>
+ </div>
+ <div id="startTip">
+     <div class="tip-title">准备好了吗？</div>
+     <div class="tip-controls" id="tipControls">
+         WASD移动 | 鼠标瞄准<br>
+         左键射击 | R键换弹 | ESC暂停
+     </div>
+     <button class="start-btn" onclick="beginGame()">开始战斗</button>
+ </div>
+ <div id="pauseMenu">
+     <h2>游戏暂停</h2>
+     <button class="menu-btn" onclick="resumeGame()">继续游戏</button>
+     <button class="menu-btn" onclick="restartLevel()">重新开始</button>
+     <button class="menu-btn" onclick="quitToMenu()">返回主菜单</button>
+ </div>
+ <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
+ <script>
+ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+ const TOTAL_LEVELS = 50;
+ const LEVELS_PER_PAGE = 10;
+ const TOTAL_PAGES = 5;
+ const MAG_SIZE = 30;
+ const TOTAL_AMMO = 100;
+ let gameState = {
+     unlockedLevel: 1,
+     levelStars: {},
+     sensitivity: 1.0,
+     volume: 0.5,
+     quality: 'medium'
+ };
+ function loadSave() {
+     const save = localStorage.getItem('fpsGameSave');
+     if (save) {
+         const data = JSON.parse(save);
+         gameState.unlockedLevel = data.unlockedLevel || 1;
+         gameState.levelStars = data.levelStars || {};
+         gameState.sensitivity = data.sensitivity || 1.0;
+         gameState.volume = data.volume || 0.5;
+         gameState.quality = data.quality || 'medium';
+     }
+     document.getElementById('sensitivity').value = gameState.sensitivity;
+     document.getElementById('volume').value = gameState.volume * 100;
+     document.getElementById('quality').value = gameState.quality;
+     updateSensitivity();
+     updateVolume();
+ }
+ function saveGame() {
+     localStorage.setItem('fpsGameSave', JSON.stringify(gameState));
+ }
+ let currentPage = 1;
+ let selectedLevelNum = 1;
+ let currentDifficulty = 1;
+ function hideAllMenus() {
+     document.getElementById('mainMenu').classList.add('hidden');
+     document.getElementById('settingsScreen').classList.add('hidden');
+     document.getElementById('levelSelect').classList.add('hidden');
+     document.getElementById('difficultySelect').classList.add('hidden');
+     document.getElementById('gameHUD').style.display = 'none';
+     document.getElementById('startTip').style.display = 'none';
+     document.getElementById('pauseMenu').style.display = 'none';
+     document.getElementById('mobileControls').style.display = 'none';
+ }
+ function showMainMenu() {
+     hideAllMenus();
+     document.getElementById('mainMenu').classList.remove('hidden');
+     if (renderer) {
+         renderer.domElement.style.display = 'none';
+     }
+ }
+ function showSettings() {
+     hideAllMenus();
+     document.getElementById('settingsScreen').classList.remove('hidden');
+ }
+ function showLevelSelect() {
+     hideAllMenus();
+     document.getElementById('levelSelect').classList.remove('hidden');
+     renderLevelGrid();
+     renderPageNav();
+ }
+ function showDifficultySelect(levelNum) {
+     selectedLevelNum = levelNum;
+     hideAllMenus();
+     document.getElementById('difficultySelect').classList.remove('hidden');
+     document.getElementById('selectedLevel').innerText = levelNum;
+     
+     const isBoss = levelNum % 10 === 0;
+     document.getElementById('bossWarning').classList.toggle('hidden', !isBoss);
+ }
+ function renderLevelGrid() {
+     const grid = document.getElementById('levelGrid');
+     grid.innerHTML = '';
+     
+     const startLevel = (currentPage - 1) * LEVELS_PER_PAGE + 1;
+     const endLevel = Math.min(startLevel + LEVELS_PER_PAGE - 1, TOTAL_LEVELS);
+     
+     for (let i = startLevel; i <= endLevel; i++) {
+         const btn = document.createElement('div');
+         btn.className = 'level-btn';
+         
+         const isBoss = i % 10 === 0;
+         const isLocked = i > gameState.unlockedLevel;
+         
+         if (isBoss) btn.classList.add('boss');
+         if (isLocked) btn.classList.add('locked');
+         
+         btn.innerHTML = `
+             <span>${i}</span>
+             ${isBoss ? '<span class="boss-label">BOSS</span>' : ''}
+             ${gameState.levelStars[i] ? '<span class="star">' + '★'.repeat(gameState.levelStars[i]) + '</span>' : ''}
+             ${isLocked ? '<span style="font-size:12px;">🔒</span>' : ''}
+         `;
+         
+         if (!isLocked) {
+             btn.onclick = () => showDifficultySelect(i);
+         }
+         
+         grid.appendChild(btn);
+     }
+     
+     document.getElementById('currentPage').innerText = currentPage;
+ }
+ function renderPageNav() {
+     const nav = document.getElementById('pageNav');
+     nav.innerHTML = '';
+     
+     for (let i = 1; i <= TOTAL_PAGES; i++) {
+         const btn = document.createElement('button');
+         btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+         btn.innerText = i;
+         btn.onclick = () => {
+             currentPage = i;
+             renderLevelGrid();
+             renderPageNav();
+         };
+         nav.appendChild(btn);
+     }
+ }
+ function updateSensitivity() {
+     const val = document.getElementById('sensitivity').value;
+     gameState.sensitivity = parseFloat(val);
+     document.getElementById('sensVal').innerText = val;
+     saveGame();
+ }
+ function updateVolume() {
+     const val = document.getElementById('volume').value;
+     gameState.volume = val / 100;
+     document.getElementById('volVal').innerText = val + '%';
+     saveGame();
+ }
+ let scene, camera, renderer, controls;
+ let player = {
+     hp: 100,
+     maxHp: 100,
+     ammo: MAG_SIZE,
+     totalAmmo: TOTAL_AMMO,
+     damage: 20,
+     speed: 0.12,
+     velocity: new THREE.Vector3()
+ };
+ let enemies = [];
+ let obstacles = [];
+ let weaponGroup;
+ let isPlaying = false;
+ let isPaused = false;
+ let gameStarted = false;
+ let currentLevelData = {
+     level: 1,
+     difficulty: 1,
+     isBoss: false,
+     enemyCount: 0
+ };
+ const keys = {};
+ function initThree() {
+     scene = new THREE.Scene();
+     scene.background = new THREE.Color(0x87ceeb);
+     scene.fog = new THREE.Fog(0x87ceeb, 50, 200);
+     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+     camera.position.set(0, 1.7, 0);
+     renderer = new THREE.WebGLRenderer({ antialias: true });
+     renderer.setSize(window.innerWidth, window.innerHeight);
+     renderer.shadowMap.enabled = true;
+     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+     document.body.insertBefore(renderer.domElement, document.body.firstChild);
+     const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+     scene.add(ambientLight);
+     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+     dirLight.position.set(50, 100, 50);
+     dirLight.castShadow = true;
+     dirLight.shadow.mapSize.width = 1024;
+     dirLight.shadow.mapSize.height = 1024;
+     dirLight.shadow.camera.near = 0.5;
+     dirLight.shadow.camera.far = 500;
+     dirLight.shadow.camera.left = -80;
+     dirLight.shadow.camera.right = 80;
+     dirLight.shadow.camera.top = 80;
+     dirLight.shadow.camera.bottom = -80;
+     scene.add(dirLight);
+     const fillLight = new THREE.DirectionalLight(0xffffff, 0.35);
+     fillLight.position.set(-50, 50, -50);
+     scene.add(fillLight);
+     if (!isMobile) {
+         controls = new THREE.PointerLockControls(camera, document.body);
+         
+         controls.addEventListener('lock', () => {
+             document.getElementById('startTip').style.display = 'none';
+             gameStarted = true;
+         });
+         
+         controls.addEventListener('unlock', () => {
+             if (isPlaying && !isPaused && gameStarted) {
+                 pauseGame();
+             }
+         });
+     }
+     createWeapon();
+     window.addEventListener('resize', onWindowResize);
+ }
+ function createWeapon() {
+     weaponGroup = new THREE.Group();
+     
+     const bodyGeo = new THREE.BoxGeometry(0.1, 0.15, 0.5);
+     const bodyMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+     const body = new THREE.Mesh(bodyGeo, bodyMat);
+     body.position.set(0, 0, -0.2);
+     weaponGroup.add(body);
+     
+     const barrelGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 8);
+     const barrelMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+     const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+     barrel.rotation.x = Math.PI / 2;
+     barrel.position.set(0, 0.02, -0.55);
+     weaponGroup.add(barrel);
+     
+     const gripGeo = new THREE.BoxGeometry(0.08, 0.2, 0.1);
+     const gripMat = new THREE.MeshLambertMaterial({ color: 0x4a3728 });
+     const grip = new THREE.Mesh(gripGeo, gripMat);
+     grip.position.set(0, -0.12, -0.1);
+     grip.rotation.x = -0.2;
+     weaponGroup.add(grip);
+     
+     const magGeo = new THREE.BoxGeometry(0.06, 0.15, 0.08);
+     const magMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+     const mag = new THREE.Mesh(magGeo, magMat);
+     mag.position.set(0, -0.15, 0);
+     weaponGroup.add(mag);
+     
+     const sightGeo = new THREE.BoxGeometry(0.02, 0.03, 0.04);
+     const sightMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
+     const sight = new THREE.Mesh(sightGeo, sightMat);
+     sight.position.set(0, 0.1, -0.3);
+     weaponGroup.add(sight);
+     
+     weaponGroup.position.set(0.25, -0.25, -0.5);
+     camera.add(weaponGroup);
+     scene.add(camera);
+ }
+ function createEnemyModel(isBoss = false) {
+     const group = new THREE.Group();
+     
+     const scale = isBoss ? 2.2 : 1;
+     const bodyColor = isBoss ? 0x8b0000 : 0x2e7d32;
+     const headColor = isBoss ? 0xff0000 : 0x388e3c;
+     
+     const bodyGeo = new THREE.BoxGeometry(0.6 * scale, 1 * scale, 0.4 * scale);
+     const bodyMat = new THREE.MeshLambertMaterial({ color: bodyColor });
+     const body = new THREE.Mesh(bodyGeo, bodyMat);
+     body.position.y = 1 * scale;
+     body.castShadow = true;
+     group.add(body);
+     
+     const headGeo = new THREE.SphereGeometry(0.3 * scale, 8, 8);
+     const headMat = new THREE.MeshLambertMaterial({ color: headColor });
+     const head = new THREE.Mesh(headGeo, headMat);
+     head.position.y = 1.8 * scale;
+     head.castShadow = true;
+     group.add(head);
+     
+     const eyeGeo = new THREE.SphereGeometry(0.05 * scale, 4, 4);
+     const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+     
+     const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+     leftEye.position.set(-0.1 * scale, 1.85 * scale, 0.25 * scale);
+     group.add(leftEye);
+     
+     const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+     rightEye.position.set(0.1 * scale, 1.85 * scale, 0.25 * scale);
+     group.add(rightEye);
+     
+     const armGeo = new THREE.CylinderGeometry(0.08 * scale, 0.08 * scale, 0.8 * scale, 6);
+     const armMat = new THREE.MeshLambertMaterial({ color: bodyColor });
+     
+     const leftArm = new THREE.Mesh(armGeo, armMat);
+     leftArm.position.set(-0.45 * scale, 1.1 * scale, 0);
+     leftArm.rotation.z = 0.3;
+     leftArm.castShadow = true;
+     group.add(leftArm);
+     
+     const rightArm = new THREE.Mesh(armGeo, armMat);
+     rightArm.position.set(0.45 * scale, 1.1 * scale, 0);
+     rightArm.rotation.z = -0.3;
+     rightArm.castShadow = true;
+     group.add(rightArm);
+     
+     const legGeo = new THREE.CylinderGeometry(0.1 * scale, 0.1 * scale, 0.8 * scale, 6);
+     const legMat = new THREE.MeshLambertMaterial({ color: bodyColor });
+     
+     const leftLeg = new THREE.Mesh(legGeo, legMat);
+     leftLeg.position.set(-0.2 * scale, 0.4 * scale, 0);
+     leftLeg.castShadow = true;
+     group.add(leftLeg);
+     
+     const rightLeg = new THREE.Mesh(legGeo, legMat);
+     rightLeg.position.set(0.2 * scale, 0.4 * scale, 0);
+     rightLeg.castShadow = true;
+     group.add(rightLeg);
+     
+     if (isBoss) {
+         for (let i = 0; i < 5; i++) {
+             const spikeGeo = new THREE.ConeGeometry(0.15, 0.5, 4);
+             const spikeMat = new THREE.MeshLambertMaterial({ color: 0x444444 });
+             const spike = new THREE.Mesh(spikeGeo, spikeMat);
+             spike.position.set(
+                 (Math.random() - 0.5) * 1.2,
+                 2.5 + Math.random() * 0.3,
+                 (Math.random() - 0.5) * 0.8
+             );
+             spike.rotation.x = (Math.random() - 0.5) * 0.5;
+             spike.rotation.z = (Math.random() - 0.5) * 0.5;
+             group.add(spike);
+         }
+     }
+     
+     return group;
+ }
+ function generateTerrain(levelNum) {
+     obstacles.forEach(o => scene.remove(o));
+     obstacles = [];
+     
+     const hue = (levelNum * 0.02) % 1;
+     const groundColor = new THREE.Color().setHSL(hue, 0.4, 0.35);
+     
+     const oldGround = scene.getObjectByName('ground');
+     if (oldGround) scene.remove(oldGround);
+     
+     const groundSize = 70 + levelNum * 0.4;
+     const groundGeo = new THREE.PlaneGeometry(groundSize, groundSize);
+     const groundMat = new THREE.MeshLambertMaterial({ color: groundColor });
+     const ground = new THREE.Mesh(groundGeo, groundMat);
+     ground.rotation.x = -Math.PI / 2;
+     ground.receiveShadow = true;
+     ground.name = 'ground';
+     scene.add(ground);
+     
+     const obstacleCount = 4 + Math.floor(levelNum / 4);
+     const patterns = ['random', 'circle', 'grid', 'spiral', 'corridor'];
+     const pattern = patterns[levelNum % patterns.length];
+     
+     for (let i = 0; i < obstacleCount; i++) {
+         let x, z;
+         const size = 1.5 + Math.random() * 2.5;
+         const height = 1.5 + Math.random() * 3;
+         
+         switch (pattern) {
+             case 'circle':
+                 const angle = (i / obstacleCount) * Math.PI * 2;
+                 const radius = 18 + Math.random() * 8;
+                 x = Math.cos(angle) * radius;
+                 z = Math.sin(angle) * radius;
+                 break;
+             case 'grid':
+                 const row = Math.floor(i / 4);
+                 const col = i % 4;
+                 x = (col - 1.5) * 10 + (Math.random() - 0.5) * 3;
+                 z = (row - 1.5) * 10 + (Math.random() - 0.5) * 3;
+                 break;
+             case 'spiral':
+                 const spiralAngle = i * 0.9;
+                 const spiralRadius = 4 + i * 1.3;
+                 x = Math.cos(spiralAngle) * spiralRadius;
+                 z = Math.sin(spiralAngle) * spiralRadius;
+                 break;
+             case 'corridor':
+                 x = (i % 2 === 0 ? -1 : 1) * (7 + Math.random() * 4);
+                 z = (i - obstacleCount / 2) * 4.5;
+                 break;
+             default:
+                 x = (Math.random() - 0.5) * 55;
+                 z = (Math.random() - 0.5) * 55;
+         }
+         
+         if (Math.abs(x) < 5 && Math.abs(z) < 5) continue;
+         
+         const obstacleType = Math.floor(Math.random() * 3);
+         let obstacle;
+         
+         const obstacleColors = [0x8b4513, 0x696969, 0x556b2f, 0x8b0000, 0x4b0082];
+         const color = obstacleColors[Math.floor(Math.random() * obstacleColors.length)];
+         const mat = new THREE.MeshLambertMaterial({ color });
+         
+         if (obstacleType === 0) {
+             obstacle = new THREE.Mesh(new THREE.BoxGeometry(size, height, size), mat);
+         } else if (obstacleType === 1) {
+             obstacle = new THREE.Mesh(new THREE.CylinderGeometry(size/2, size/2, height, 8), mat);
+         } else {
+             obstacle = new THREE.Mesh(new THREE.ConeGeometry(size/2, height, 6), mat);
+         }
+         
+         obstacle.position.set(x, height / 2, z);
+         obstacle.castShadow = true;
+         obstacle.receiveShadow = true;
+         scene.add(obstacle);
+         obstacles.push(obstacle);
+     }
+     
+     const skyHue = (hue + 0.5) % 1;
+     scene.background = new THREE.Color().setHSL(skyHue, 0.3, 0.7);
+     scene.fog.color = scene.background;
+ }
+ function spawnEnemies(levelNum, difficulty) {
+     enemies.forEach(e => scene.remove(e.mesh));
+     enemies = [];
+     
+     const isBoss = levelNum % 10 === 0;
+     currentLevelData.isBoss = isBoss;
+     
+     let count;
+     if (isBoss) {
+         count = 1;
+     } else {
+         const baseCount = 3 + Math.floor(levelNum * 0.4);
+         if (difficulty === 1) count = baseCount;
+         else if (difficulty === 2) count = Math.floor(baseCount * 1.5);
+         else count = Math.floor(baseCount * 2.2);
+     }
+     
+     currentLevelData.enemyCount = count;
+     
+     for (let i = 0; i < count; i++) {
+         const isBossEnemy = isBoss;
+         const mesh = createEnemyModel(isBossEnemy);
+         
+         let x, z;
+         do {
+             x = (Math.random() - 0.5) * 50;
+             z = (Math.random() - 0.5) * 50;
+         } while (Math.sqrt(x*x + z*z) < 15);
+         
+         mesh.position.set(x, 0, z);
+         scene.add(mesh);
+         
+         const enemy = {
+             mesh: mesh,
+             hp: isBossEnemy ? 2000 : 100,
+             maxHp: isBossEnemy ? 2000 : 100,
+             isBoss: isBossEnemy,
+             speed: isBossEnemy ? 0.018 : 0.035 + Math.random() * 0.02,
+             damage: isBossEnemy ? 12 : 4,
+             attackRange: isBossEnemy ? 3.5 : 2.2,
+             attackCooldown: 0,
+             moveTimer: Math.random() * 100
+         };
+         
+         enemies.push(enemy);
+     }
+     
+     updateHUD();
+ }
+ function startGame(difficulty) {
+     currentDifficulty = difficulty;
+     currentLevelData.level = selectedLevelNum;
+     currentLevelData.difficulty = difficulty;
+     
+     hideAllMenus();
+     
+     if (!renderer) {
+         initThree();
+     }
+     
+     renderer.domElement.style.display = 'block';
+     
+     player.hp = player.maxHp;
+     player.ammo = MAG_SIZE;
+     player.totalAmmo = TOTAL_AMMO;
+     player.velocity.set(0, 0, 0);
+     camera.position.set(0, 1.7, 0);
+     camera.rotation.set(0, 0, 0);
+     
+     generateTerrain(selectedLevelNum);
+     spawnEnemies(selectedLevelNum, difficulty);
+     
+     document.getElementById('gameHUD').style.display = 'block';
+     document.getElementById('hudLevel').innerText = selectedLevelNum;
+     
+     document.getElementById('startTip').style.display = 'flex';
+     
+     if (isMobile) {
+         document.getElementById('tipControls').innerHTML = 
+             '左摇杆：移动<br>右半屏滑动：瞄准<br>右下按钮：射击/换弹';
+     } else {
+         document.getElementById('tipControls').innerHTML = 
+             'WASD：移动<br>鼠标：瞄准<br>左键：射击 | R：换弹 | ESC：暂停';
+     }
+     
+     if (isMobile) {
+         document.getElementById('mobileControls').style.display = 'block';
+         setupMobileControls();
+     }
+     
+     isPlaying = true;
+     isPaused = false;
+     gameStarted = false;
+     
+     animate();
+ }
+ function beginGame() {
+     if (isMobile) {
+         document.getElementById('startTip').style.display = 'none';
+         gameStarted = true;
+     } else {
+         controls.lock();
+     }
+ }
+ let lastShotTime = 0;
+ const shootCooldown = 180;
+ function shoot() {
+     if (!isPlaying || isPaused || !gameStarted) return;
+     
+     const now = Date.now();
+     if (now - lastShotTime < shootCooldown) return;
+     if (player.ammo <= 0) {
+         if (player.totalAmmo > 0) {
+             reload();
+         }
+         return;
+     }
+     
+     lastShotTime = now;
+     player.ammo--;
+     updateHUD();
+     
+     weaponGroup.position.z += 0.04;
+     setTimeout(() => {
+         weaponGroup.position.z = -0.5;
+     }, 50);
+     
+     const raycaster = new THREE.Raycaster();
+     raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+     
+     const enemyMeshes = enemies.map(e => e.mesh);
+     const intersects = raycaster.intersectObjects(enemyMeshes, true);
+     
+     if (intersects.length > 0) {
+         let hitEnemy = null;
+         let obj = intersects[0].object;
+         while (obj && !hitEnemy) {
+             hitEnemy = enemies.find(e => e.mesh === obj);
+             obj = obj.parent;
+         }
+         
+         if (hitEnemy) {
+             hitEnemy.hp -= player.damage;
+             
+             hitEnemy.mesh.traverse(child => {
+                 if (child.isMesh && child.material.emissive === undefined) {
+                     const originalColor = child.material.color.clone();
+                     child.material.color.setHex(0xffffff);
+                     setTimeout(() => {
+                         child.material.color.copy(originalColor);
+                     }, 80);
+                 }
+             });
+             
+             if (hitEnemy.hp <= 0) {
+                 killEnemy(hitEnemy);
+             }
+         }
+     }
+ }
+ document.addEventListener('mousedown', (e) => {
+     if (isMobile) return;
+     if (e.button !== 0) return;
+     shoot();
+ });
+ function killEnemy(enemy) {
+     scene.remove(enemy.mesh);
+     enemies = enemies.filter(e => e !== enemy);
+     updateHUD();
+     
+     if (enemies.length === 0) {
+         levelComplete();
+     }
+ }
+ function levelComplete() {
+     isPlaying = false;
+     gameStarted = false;
+     if (!isMobile) controls.unlock();
+     
+     let stars = currentDifficulty;
+     
+     if (selectedLevelNum >= gameState.unlockedLevel && selectedLevelNum < TOTAL_LEVELS) {
+         gameState.unlockedLevel = selectedLevelNum + 1;
+     }
+     
+     if (!gameState.levelStars[selectedLevelNum] || gameState.levelStars[selectedLevelNum] < stars) {
+         gameState.levelStars[selectedLevelNum] = stars;
+     }
+     
+     saveGame();
+     
+     showCenterMsg(`关卡通过！\n${'★'.repeat(stars)}${'☆'.repeat(3-stars)}`, 2500);
+     
+     setTimeout(() => {
+         if (selectedLevelNum < TOTAL_LEVELS) {
+             selectedLevelNum++;
+             showDifficultySelect(selectedLevelNum);
+         } else {
+             showCenterMsg('恭喜通关全部50关！', 3000);
+             setTimeout(() => showMainMenu(), 3000);
+         }
+     }, 2500);
+ }
+ function playerTakeDamage(damage) {
+     player.hp -= damage;
+     updateHUD();
+     
+     if (player.hp <= 0) {
+         playerDie();
+     }
+ }
+ function playerDie() {
+     isPlaying = false;
+     gameStarted = false;
+     if (!isMobile) controls.unlock();
+     showCenterMsg('你阵亡了...', 2000);
+     
+     setTimeout(() => {
+         showDifficultySelect(selectedLevelNum);
+     }, 2000);
+ }
+ function updateHUD() {
+     document.getElementById('hudAmmo').innerText = player.ammo;
+     document.getElementById('hudTotalAmmo').innerText = player.totalAmmo;
+     document.getElementById('hudEnemyCount').innerText = enemies.length;
+     document.getElementById('hpFill').style.width = (player.hp / player.maxHp * 100) + '%';
+ }
+ function showCenterMsg(text, duration = 2000) {
+     const msg = document.getElementById('centerMsg');
+     msg.innerText = text;
+     msg.classList.add('show');
+     
+     setTimeout(() => {
+         msg.classList.remove('show');
+     }, duration);
+ }
+ document.addEventListener('keydown', (e) => {
+     keys[e.code] = true;
+     
+     if (e.code === 'KeyR' && isPlaying && !isPaused && gameStarted) {
+         reload();
+     }
+     
+     if (e.code === 'Escape' && isPlaying && gameStarted) {
+         if (isPaused) {
+             resumeGame();
+         } else {
+             pauseGame();
+         }
+     }
+ });
+ document.addEventListener('keyup', (e) => {
+     keys[e.code] = false;
+ });
+ function reload() {
+     if (player.ammo === MAG_SIZE) return;
+     if (player.totalAmmo <= 0) return;
+     
+     const needed = MAG_SIZE - player.ammo;
+     const available = Math.min(needed, player.totalAmmo);
+     
+     player.ammo += available;
+     player.totalAmmo -= available;
+     updateHUD();
+     
+     weaponGroup.position.y -= 0.08;
+     weaponGroup.rotation.x = 0.25;
+     setTimeout(() => {
+         weaponGroup.position.y = -0.25;
+         weaponGroup.rotation.x = 0;
+     }, 400);
+ }
+ function pauseGame() {
+     isPaused = true;
+     if (!isMobile) controls.unlock();
+     document.getElementById('pauseMenu').style.display = 'flex';
+ }
+ function resumeGame() {
+     isPaused = false;
+     document.getElementById('pauseMenu').style.display = 'none';
+     
+     if (isMobile) {
+         gameStarted = true;
+     } else {
+         document.getElementById('startTip').style.display = 'flex';
+         gameStarted = false;
+     }
+ }
+ function restartLevel() {
+     document.getElementById('pauseMenu').style.display = 'none';
+     startGame(currentDifficulty);
+ }
+ function quitToMenu() {
+     isPlaying = false;
+     isPaused = false;
+     gameStarted = false;
+     document.getElementById('pauseMenu').style.display = 'none';
+     showMainMenu();
+ }
+ function onWindowResize() {
+     camera.aspect = window.innerWidth / window.innerHeight;
+     camera.updateProjectionMatrix();
+     renderer.setSize(window.innerWidth, window.innerHeight);
+ }
+ let joystick = {
+     active: false,
+     touchId: null,
+     centerX: 0,
+     centerY: 0,
+     dx: 0,
+     dy: 0
+ };
+ let lookTouch = {
+     active: false,
+     touchId: null,
+     lastX: 0,
+     lastY: 0
+ };
+ let isShooting = false;
+ function setupMobileControls() {
+     const joystickEl = document.getElementById('joystick');
+     const joystickKnob = document.getElementById('joystickKnob');
+     const lookArea = document.getElementById('lookArea');
+     const shootBtn = document.getElementById('shootBtn');
+     const reloadBtn = document.getElementById('reloadBtn');
+     
+     joystickEl.addEventListener('touchstart', (e) => {
+         e.preventDefault();
+         const touch = e.touches[0];
+         const rect = joystickEl.getBoundingClientRect();
+         
+         joystick.active = true;
+         joystick.touchId = touch.identifier;
+         joystick.centerX = rect.left + rect.width / 2;
+         joystick.centerY = rect.top + rect.height / 2;
+     });
+     
+     joystickEl.addEventListener('touchmove', (e) => {
+         e.preventDefault();
+         if (!joystick.active) return;
+         
+         const touch = Array.from(e.touches).find(t => t.identifier === joystick.touchId);
+         if (!touch) return;
+         
+         const dx = touch.clientX - joystick.centerX;
+         const dy = touch.clientY - joystick.centerY;
+         const dist = Math.sqrt(dx * dx + dy * dy);
+         const maxDist = 35;
+         
+         if (dist > maxDist) {
+             joystick.dx = (dx / dist) * maxDist;
+             joystick.dy = (dy / dist) * maxDist;
+         } else {
+             joystick.dx = dx;
+             joystick.dy = dy;
+         }
+         
+         joystickKnob.style.transform = `translate(calc(-50% + ${joystick.dx}px), calc(-50% + ${joystick.dy}px))`;
+     });
+     
+     joystickEl.addEventListener('touchend', (e) => {
+         e.preventDefault();
+         joystick.active = false;
+         joystick.touchId = null;
+         joystick.dx = 0;
+         joystick.dy = 0;
+         joystickKnob.style.transform = 'translate(-50%, -50%)';
+     });
+     
+     lookArea.addEventListener('touchstart', (e) => {
+         e.preventDefault();
+         const touch = e.touches[0];
+         
+         lookTouch.active = true;
+         lookTouch.touchId = touch.identifier;
+         lookTouch.lastX = touch.clientX;
+         lookTouch.lastY = touch.clientY;
+     });
+     
+     lookArea.addEventListener('touchmove', (e) => {
+         e.preventDefault();
+         if (!lookTouch.active || !gameStarted) return;
+         
+         const touch = Array.from(e.touches).find(t => t.identifier === lookTouch.touchId);
+         if (!touch) return;
+         
+         const dx = touch.clientX - lookTouch.lastX;
+         const dy = touch.clientY - lookTouch.lastY;
+         
+         lookTouch.lastX = touch.clientX;
+         lookTouch.lastY = touch.clientY;
+         
+         const sensitivity = gameState.sensitivity * 0.003;
+         
+         camera.rotation.y -= dx * sensitivity;
+         
+         camera.rotation.x -= dy * sensitivity;
+         camera.rotation.x = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, camera.rotation.x));
+     });
+     
+     lookArea.addEventListener('touchend', (e) => {
+         e.preventDefault();
+         lookTouch.active = false;
+         lookTouch.touchId = null;
+     });
+     
+     shootBtn.addEventListener('touchstart', (e) => {
+         e.preventDefault();
+         isShooting = true;
+     });
+     
+     shootBtn.addEventListener('touchend', (e) => {
+         e.preventDefault();
+         isShooting = false;
+     });
+     
+     reloadBtn.addEventListener('touchstart', (e) => {
+         e.preventDefault();
+         reload();
+     });
+ }
+ setInterval(() => {
+     if (isShooting && isPlaying && !isPaused && gameStarted) {
+         shoot();
+     }
+ }, 50);
+ const clock = new THREE.Clock();
+ function animate() {
+     if (!isPlaying) return;
+     
+     requestAnimationFrame(animate);
+     
+     if (isPaused || !gameStarted) {
+         renderer.render(scene, camera);
+         return;
+     }
+     
+     const delta = clock.getDelta();
+     
+     const moveSpeed = player.speed;
+     const direction = new THREE.Vector3();
+     
+     if (isMobile) {
+         if (joystick.active) {
+             direction.x = joystick.dx / 35;
+             direction.z = joystick.dy / 35;
+         }
+     } else {
+         if (keys['KeyW']) direction.z -= 1;
+         if (keys['KeyS']) direction.z += 1;
+         if (keys['KeyA']) direction.x -= 1;
+         if (keys['KeyD']) direction.x += 1;
+     }
+     
+     if (direction.length() > 0) {
+         direction.normalize();
+         
+         const moveDir = new THREE.Vector3();
+         camera.getWorldDirection(moveDir);
+         moveDir.y = 0;
+         moveDir.normalize();
+         
+         const right = new THREE.Vector3();
+         right.crossVectors(moveDir, new THREE.Vector3(0, 1, 0));
+         
+         const movement = new THREE.Vector3();
+         movement.addScaledVector(moveDir, -direction.z * moveSpeed);
+         movement.addScaledVector(right, direction.x * moveSpeed);
+         
+         const newPos = camera.position.clone().add(movement);
+         let canMove = true;
+         
+         const groundSize = 70 + selectedLevelNum * 0.4;
+         if (Math.abs(newPos.x) > groundSize/2 - 1 || Math.abs(newPos.z) > groundSize/2 - 1) {
+             canMove = false;
+         }
+         
+         for (const obs of obstacles) {
+             const dist = new THREE.Vector2(newPos.x - obs.position.x, newPos.z - obs.position.z).length();
+             if (dist < 1.8) {
+                 canMove = false;
+                 break;
+             }
+         }
+         
+         if (canMove) {
+             camera.position.copy(newPos);
+         }
+         
+         const bobAmount = Math.sin(Date.now() * 0.01) * 0.008;
+         weaponGroup.position.y = -0.25 + bobAmount;
+     }
+     
+     enemies.forEach(enemy => {
+         const enemyPos = enemy.mesh.position;
+         const playerPos = camera.position;
+         
+         const dist = Math.sqrt(
+             Math.pow(enemyPos.x - playerPos.x, 2) +
+             Math.pow(enemyPos.z - playerPos.z, 2)
+         );
+         
+         if (enemy.attackCooldown > 0) {
+             enemy.attackCooldown -= delta;
+         }
+         
+         if (dist < enemy.attackRange) {
+             enemy.mesh.lookAt(playerPos.x, enemyPos.y, playerPos.z);
+             
+             if (enemy.attackCooldown <= 0) {
+                 playerTakeDamage(enemy.damage);
+                 enemy.attackCooldown = 1.2;
+             }
+         } else {
+             const dir = new THREE.Vector3(
+                 playerPos.x - enemyPos.x,
+                 0,
+                 playerPos.z - enemyPos.z
+             ).normalize();
+             
+             enemy.mesh.position.add(dir.multiplyScalar(enemy.speed));
+             enemy.mesh.lookAt(playerPos.x, enemyPos.y, playerPos.z);
+             
+             enemy.moveTimer += delta * 5;
+             const bob = Math.sin(enemy.moveTimer) * 0.04;
+             enemy.mesh.position.y = bob;
+         }
+     });
+     
+     renderer.render(scene, camera);
+ }
+ loadSave();
+ </script>
+ </body>
+ </html>
